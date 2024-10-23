@@ -37,3 +37,17 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('chat:login')
+
+
+# chat/views.py
+from django.shortcuts import render, get_object_or_404
+from .models import Chat, Message
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def chat_room(request, room_name):
+    # Ensure the user is either a seller or customer in this chat room
+    return render(request, 'chat/room.html', {
+        'room_name': room_name,
+        'username': request.user.username
+    })
