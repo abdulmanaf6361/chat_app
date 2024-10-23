@@ -125,11 +125,20 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer"
-    }
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('127.0.0.1', 6379)],  # Make sure Redis is running locally
+        },
+    },
 }
 
-LOGIN_REDIRECT_URL = "chat-page"
-LOGOUT_REDIRECT_URL = "login-user"
+
+# settings.py
+AUTH_USER_MODEL = 'main.User'
+
+LOGIN_REDIRECT_URL = 'chat:home'  # Redirect after login
+LOGOUT_REDIRECT_URL = 'chat:login'  # Redirect after logout
+
