@@ -1,16 +1,105 @@
 <!-- templates/chat/chat_list.html -->
-<h2>Your Chats</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Chats</title>
+    <style>
+        /* styles.css */
 
-<ul>
-    {% for chat in chats %}
-        <li>
-            {% if request.user.is_seller %}
-                Chat with Customer: <a href="{% url 'chat:chat_room' chat.pk %}">{{ chat.customer.username }}</a>
-            {% else %}
-                Chat with Seller: <a href="{% url 'chat:chat_room' chat.pk %}">{{ chat.seller.username }}</a>
-            {% endif %}
-        </li>
-    {% endfor %}
-</ul>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+        }
 
-<a href="{% url 'chat:create_chat' %}">Start a new chat</a>
+        .container {
+            max-width: 600px;
+            width: 100%;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            text-align: left;
+        }
+
+        li {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            transition: background-color 0.3s;
+        }
+
+        li:hover {
+            background-color: #f0f0f0;
+        }
+
+        a {
+            text-decoration: none;
+            color: #007BFF;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .start-chat {
+            display: block;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .start-chat:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Your Chats</h2>
+
+        <ul>
+            {% for chat in chats %}
+                <li>
+                    {% if request.user.is_seller %}
+                        Chat with Customer: <a href="{% url 'chat:chat_room' chat.pk %}">{{ chat.customer.username }}</a>
+                    {% else %}
+                        Chat with Seller: <a href="{% url 'chat:chat_room' chat.pk %}">{{ chat.seller.username }}</a>
+                    {% endif %}
+                </li>
+            {% empty %}
+                <li>No chats available.</li>
+            {% endfor %}
+        </ul>
+
+        <a href="{% url 'chat:create_chat' %}" class="start-chat">Start a new chat</a>
+    </div>
+</body>
+</html>
