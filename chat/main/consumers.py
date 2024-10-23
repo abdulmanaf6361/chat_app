@@ -28,41 +28,52 @@ class ChatConsumer(AsyncWebsocketConsumer):
     # Receive message from WebSocket
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        message = text_data_json['message']
-        receiver_id = text_data_json['receiver_id']  # Get the receiver's ID from the message data
-        sender_username = self.scope['user'].username
 
-        # Get current timestamp
-        timestamp = timezone.now()
+        if 'message' in text_data_json:
+            # Handle the message
+            message = text_data_json['message']
+            receiver_id = text_data_json['receiver_id']
+            sender_username = self.scope['user'].username
 
-        # Format timestamp to "Oct. 23, 2024, 12:18 p.m."
-        formatted_timestamp = date_format(timestamp, 'M. j, Y, P')
+            # Get current timestamp
+            timestamp = timezone.now()
+            formatted_timestamp = date_format(timestamp, 'M. j, Y, P')
 
-        # Find the receiver by the ID (async operation)
-        receiver = await self.get_user(receiver_id)
+            # Find the receiver by the ID (async operation)
+            receiver = await self.get_user(receiver_id)
 
-        # Determine whether the sender is a seller or a customer and find the chat
-        if self.scope['user'].is_seller:
-            chat = await self.get_chat(self.scope['user'], receiver, as_seller=True)
-        else:
-            chat = await self.get_chat(self.scope['user'], receiver, as_seller=False)
+            # Determine whether the sender is a seller or a customer and find the chat
+            if self.scope['user'].is_seller:
+                chat = await self.get_chat(self.scope['user'], receiver, as_seller=True)
+            else:
+                chat = await self.get_chat(self.scope['user'], receiver, as_seller=False)
 
-        # Save the message to the database (async operation)
-        sender = await self.get_user_by_username(sender_username)
-        await self.create_message(chat, sender, message)
+            # Save the message to the database (async operation)
+            sender = await self.get_user_by_username(sender_username)
+            await self.create_message(chat, sender, message)
 
-        # Send message to room group
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                'type': 'chat_message',
-                'message': message,
-                'sender': sender_username,
-                'timestamp': formatted_timestamp  # Send the formatted timestamp
-            }
-        )
+            # Send message to room group
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'chat_message',
+                    'message': message,
+                    'sender': sender_username,
+                    'timestamp': formatted_timestamp  # Send the formatted timestamp
+                }
+            )
 
-    # Receive message from room group
+        elif 'typing' in text_data_json:  # Handle typing notification
+            typing = text_data_json['typing']
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'typing_notification',
+                    'username': self.scope['user'].username,
+                    'is_typing': typing
+                }
+            )
+
     async def chat_message(self, event):
         message = event['message']
         sender = event['sender']
@@ -74,6 +85,19 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'sender': sender,
             'timestamp': timestamp  # Include the timestamp in the WebSocket message
         }))
+
+    async def typing_notification(self, event):
+        username = event['username']
+        is_typing = event['is_typing']
+        
+        # Send typing notification only if it's not the same user
+        if username != self.scope['user'].username:
+            await self.send(text_data=json.dumps({
+                'typing': {
+                    'username': username,
+                    'is_typing': is_typing
+                }
+            }))
 
     # Async method to get the user by ID
     @database_sync_to_async

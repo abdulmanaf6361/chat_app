@@ -136,52 +136,108 @@
 
     <script>
         const roomName = "{{ room_name }}";
-        const receiverId = "{{ receiver_id }}"; // Uncomment this if needed
-
+        const receiverId = "{{ receiver_id }}"; // Make sure receiverId is correctly passed
+    
         const chatSocket = new WebSocket(
             'ws://' + window.location.host + '/ws/chat/' + roomName + '/'
         );
-
+    
+        let typingTimer; // Timer for hiding typing notification
+    
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
-            const message = data.message;
-            const sender = data.sender;
-            const timestamp = data.timestamp; // Get the timestamp from the message
-
-            // Append the message along with the timestamp to the chat log
-            const messageElement = document.createElement('div');
-            messageElement.className = 'message clearfix';
-            if (sender === "{{ request.user.username }}") {
-                messageElement.innerHTML = `
-                    <p class="sent">
-                        <strong>You:</strong> ${message} 
-                        <span class="timestamp">${timestamp}</span>
-                    </p>
-                `;
-            } else {
-                messageElement.innerHTML = `
-                    <p class="received">
-                        <strong>${sender}:</strong> ${message} 
-                        <span class="timestamp">${timestamp}</span>
-                    </p>
-                `;
+    
+            if (data.message) {
+                const message = data.message;
+                const sender = data.sender;
+                const timestamp = data.timestamp; // Get the timestamp from the message
+    
+                // Append the message along with the timestamp to the chat log
+                const messageElement = document.createElement('div');
+                messageElement.className = 'message clearfix';
+                if (sender === "{{ request.user.username }}") {
+                    messageElement.innerHTML = `
+                        <p class="sent">
+                            <strong>You:</strong> ${message} 
+                            <span class="timestamp">${timestamp}</span>
+                        </p>
+                    `;
+                } else {
+                    messageElement.innerHTML = `
+                        <p class="received">
+                            <strong>${sender}:</strong> ${message} 
+                            <span class="timestamp">${timestamp}</span>
+                        </p>
+                    `;
+                }
+                document.getElementById('chat-log').appendChild(messageElement);
+                // Scroll to the bottom of the chat log
+                document.getElementById('chat-log').scrollTop = document.getElementById('chat-log').scrollHeight;
             }
-            document.getElementById('chat-log').appendChild(messageElement);
-            // Scroll to the bottom of the chat log
-            document.getElementById('chat-log').scrollTop = document.getElementById('chat-log').scrollHeight;
+    
+            if (data.typing) {
+                const { username, is_typing } = data.typing;
+                const typingIndicator = document.getElementById('typing-indicator');
+    
+                if (is_typing) {
+                    typingIndicator.innerText = `${username} is typing...`;
+                    typingIndicator.style.display = 'block';
+                    
+                    // Reset the timer
+                    clearTimeout(typingTimer);
+                    typingTimer = setTimeout(() => {
+                        typingIndicator.style.display = 'none';
+                    }, 3000); // typing indicator timeout
+                } else {
+                    typingIndicator.style.display = 'none';
+                }
+            }
         };
-
+    
+        document.getElementById('chat-message-input').addEventListener('input', function() {
+            chatSocket.send(JSON.stringify({
+                'typing': true,
+                'receiver_id': receiverId
+            }));
+            
+            // Set a timer to stop typing after a short delay
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(() => {
+                chatSocket.send(JSON.stringify({
+                    'typing': false,
+                    'receiver_id': receiverId
+                }));
+            }, 3000); // Adjust typing timeout if needed
+        });
+    
         document.getElementById('chat-message-submit').onclick = function(e) {
             const messageInputDom = document.getElementById('chat-message-input');
             const message = messageInputDom.value;
-
-            // Send the message along with the receiver_id
-            chatSocket.send(JSON.stringify({
-                'message': message,
-                'receiver_id': receiverId // Ensure receiverId is passed
-            }));
-            messageInputDom.value = '';
+    
+            if (message.trim()) {
+                // Send the message to WebSocket server
+                chatSocket.send(JSON.stringify({
+                    'message': message,
+                    'receiver_id': receiverId // Ensure receiverId is passed
+                }));
+    
+                // Clear the input field after sending
+                messageInputDom.value = '';
+                
+                // Notify that the user has stopped typing
+                clearTimeout(typingTimer);
+                chatSocket.send(JSON.stringify({
+                    'typing': false,
+                    'receiver_id': receiverId
+                }));
+            }
         };
     </script>
+    
+    <div id="typing-indicator" style="display:none;"></div> <!-- Add a typing indicator div -->
+    {% comment %} <div id="chat-log"></div> <!-- The chat log where messages are displayed -->
+    <input id="chat-message-input" type="text" placeholder="Type a message...">
+    <button id="chat-message-submit">Send</button> {% endcomment %}
+    
 </body>
 </html>
