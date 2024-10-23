@@ -1,25 +1,52 @@
 <!-- templates/chat/room.html -->
 <h2>Chat Room: {{ room_name }}</h2>
-<div id="chat-log"></div>
+{{ receiver_id }} receiver_id
+
+<div id="chat-log">
+    <!-- Display past messages -->
+    {% for message in messages %}
+        <p>
+            <strong>{{ message.sender.username }}:</strong> 
+            {{ message.text }} 
+            <em>{{ message.timestamp }}</em>
+        </p>
+    {% endfor %}
+</div>
+
 <input id="chat-message-input" type="text" size="100">
 <button id="chat-message-submit">Send</button>
 
 <script>
     const roomName = "{{ room_name }}";
+    const receiverId = "{{ receiver_id }}"; // Uncomment this if needed
+
     const chatSocket = new WebSocket(
-        'ws://' + window.location.host + '/ws/chat/' + roomName + '/');
+        'ws://' + window.location.host + '/ws/chat/' + roomName + '/'
+    );
 
     chatSocket.onmessage = function(e) {
         const data = JSON.parse(e.data);
         const message = data.message;
-        document.getElementById('chat-log').innerHTML += `<p>${message}</p>`;
+        const sender = data.sender;
+        const timestamp = data.timestamp; // Get the timestamp from the message
+
+        // Append the message along with the timestamp to the chat log
+        document.getElementById('chat-log').innerHTML += `
+            <p>
+                <strong>${sender}:</strong> ${message} 
+                <em>${timestamp}</em>
+            </p>
+        `;
     };
 
     document.getElementById('chat-message-submit').onclick = function(e) {
         const messageInputDom = document.getElementById('chat-message-input');
         const message = messageInputDom.value;
+
+        // Send the message along with the receiver_id
         chatSocket.send(JSON.stringify({
-            'message': message
+            'message': message,
+            'receiver_id': receiverId // Ensure receiverId is passed
         }));
         messageInputDom.value = '';
     };

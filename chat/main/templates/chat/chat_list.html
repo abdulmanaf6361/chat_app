@@ -1,0 +1,16 @@
+<!-- templates/chat/chat_list.html -->
+<h2>Your Chats</h2>
+
+<ul>
+    {% for chat in chats %}
+        <li>
+            {% if request.user.is_seller %}
+                Chat with Customer: <a href="{% url 'chat:chat_room' chat.pk %}">{{ chat.customer.username }}</a>
+            {% else %}
+                Chat with Seller: <a href="{% url 'chat:chat_room' chat.pk %}">{{ chat.seller.username }}</a>
+            {% endif %}
+        </li>
+    {% endfor %}
+</ul>
+
+<a href="{% url 'chat:create_chat' %}">Start a new chat</a>

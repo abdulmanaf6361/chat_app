@@ -1,0 +1,13 @@
+<!-- templates/chat/create_chat.html -->
+<h2>Start a New Chat</h2>
+
+<form method="POST">
+    {% csrf_token %}
+    <label for="receiver_id">Enter Receiver's User ID:</label>
+    <input type="number" name="receiver_id" required>
+    <button type="submit">Start Chat</button>
+</form>
+
+{% if error %}
+    <p style="color: red;">{{ error }}</p>
+{% endif %}
