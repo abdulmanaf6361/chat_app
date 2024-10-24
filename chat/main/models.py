@@ -36,9 +36,15 @@ class Chat(models.Model):
 
 
 class Message(models.Model):
+    MESSAGE_TYPE_CHOICES = (
+        ('text', 'Text'),
+        ('file', 'File'),
+    )
     chat = models.ForeignKey(Chat, on_delete=models.CASCADE, related_name='messages')
     sender = models.ForeignKey(User, on_delete=models.CASCADE)
-    text = models.TextField()
+    text = models.TextField(blank=True, null=True)  # Text message content (optional)
+    file = models.FileField(upload_to='uploads/', blank=True, null=True)  # File field for file attachments (optional)
+    message_type = models.CharField(max_length=10, choices=MESSAGE_TYPE_CHOICES, default='text')  # Indicates if the message is text or file
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):

@@ -123,3 +123,22 @@ def chat_room(request, room_name):
         'messages': messages,  # Pass messages to the template
         'receiver_id':receiver.id
     })
+
+from django.http import JsonResponse
+from django.conf import settings
+from django.core.files.storage import default_storage
+from django.shortcuts import get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt  # Disable CSRF for simplicity (ensure proper security in production)
+def upload_file(request):
+    if request.method == 'POST' and request.FILES.get('file'):
+        file = request.FILES['file']
+        receiver_id = request.POST.get('receiver_id')
+
+        # Save the file using Django's storage system
+        file_name = default_storage.save(file.name, file)
+        file_url = default_storage.url(file_name)
+
+        return JsonResponse({'file_url': file_url, 'filename': file.name})
+    return JsonResponse({'error': 'File upload failed'}, status=400)

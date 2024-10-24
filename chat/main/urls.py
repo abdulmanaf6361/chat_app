@@ -1,6 +1,6 @@
 # chat/urls.py
 from django.urls import path
-from .views import register_view, login_view, logout_view,home_view,chat_room,chat_list,create_chat
+from .views import register_view, login_view, logout_view,home_view,chat_room,chat_list,create_chat,upload_file
 
 app_name = 'chat'
 
@@ -13,4 +13,6 @@ urlpatterns = [
     path('chat-list/', chat_list, name='chat_list'),  # List of chats
     path('chat/create/', create_chat, name='create_chat'),  # Create a new chat
     path('chat/<str:room_name>/',chat_room, name='chat_room'),  # Chat room
+
+    path('upload_file/', upload_file, name='upload_file'),
 ]
