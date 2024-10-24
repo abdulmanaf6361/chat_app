@@ -155,4 +155,4 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if message_type == 'text':
             return Message.objects.create(chat=chat, sender=sender, text=text, message_type='text')
         elif message_type == 'file':
-            return Message.objects.create(chat=chat, sender=sender, file=file_url, message_type='file')
+            return Message.objects.create(chat=chat, sender=sender, text=text ,file=file_url, message_type='file')

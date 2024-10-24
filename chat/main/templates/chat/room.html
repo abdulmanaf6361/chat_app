@@ -116,22 +116,22 @@
                         <p class="sent">
                             {% if message.file %}
                                 <strong>You:</strong> 
-                                <a href="{{ message.file.url }}" target="_blank">{{ message.file.name }}</a>
-                                <span class="timestamp">{{ message.timestamp }}</span>
+                                <a href="{{ message.file.url }}" target="_blank">{{ message.text }}</a>
+                                <span class="timestamp">{{ message.timestamp_formatted }}</span>
                             {% else %}
                                 <strong>You:</strong> {{ message.text }}
-                                <span class="timestamp">{{ message.timestamp }}</span>
+                                <span class="timestamp">{{ message.timestamp_formatted }}</span>
                             {% endif %}
                         </p>
                     {% else %}
                         <p class="received">
                             {% if message.file %}
                                 <strong>{{ message.sender.username }}:</strong> 
-                                <a href="{{ message.file.url }}" target="_blank">{{ message.file.name }}</a>
-                                <span class="timestamp">{{ message.timestamp }}</span>
+                                <a href="{{ message.file.url }}" target="_blank">{{ message.text }}</a>
+                                <span class="timestamp">{{ message.timestamp_formatted  }}</span>
                             {% else %}
                                 <strong>{{ message.sender.username }}:</strong> {{ message.text }}
-                                <span class="timestamp">{{ message.timestamp }}</span>
+                                <span class="timestamp">{{ message.timestamp_formatted  }}</span>
                             {% endif %}
                             
                         </p>
@@ -172,7 +172,7 @@
             if (data.message) {
                 const message = data.message;
                 const sender = data.sender;
-                const timestamp = data.timestamp;
+                const timestamp = new Date().toLocaleString();;
                 const messageElement = document.createElement('div');
                 messageElement.classList.add('message');
 
@@ -191,7 +191,7 @@
                 const sender = data.sender;
                 const fileUrl = data.file_url;
                 const filename = data.filename;
-                const timestamp = data.timestamp || new Date().toLocaleString();  // Use the timestamp from data or fallback to current time
+                const timestamp = new Date().toLocaleString();  // Use the timestamp from data or fallback to current time
             
                 fileElement.classList.add('message');
             

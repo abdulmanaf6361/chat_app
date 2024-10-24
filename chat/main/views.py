@@ -117,6 +117,10 @@ def chat_room(request, room_name):
     # Fetch past messages for this chat
     messages = Message.objects.filter(chat=chat).order_by('timestamp')
 
+    # Format the timestamps
+    for message in messages:
+        message.timestamp_formatted = message.timestamp.strftime('%d/%m/%Y, %H:%M:%S')
+
     return render(request, 'chat/room.html', {
         'room_name': room_name,
         'username': request.user.username,
