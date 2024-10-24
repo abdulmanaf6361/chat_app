@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -136,13 +137,11 @@ CHANNEL_LAYERS = {
 }
 
 
-# settings.py
+
 AUTH_USER_MODEL = 'main.User'
 
 LOGIN_REDIRECT_URL = 'chat:home'  # Redirect after login
 LOGOUT_REDIRECT_URL = 'chat:login'  # Redirect after logout
 
-import os
-# settings.py
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

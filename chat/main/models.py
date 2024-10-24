@@ -20,11 +20,6 @@ class Customer(models.Model):
 
     def __str__(self):
         return f"Customer: {self.user.username}"
-    
-    
-# chat/models.py
-from django.db import models
-from django.conf import settings
 
 class Chat(models.Model):
     seller = models.ForeignKey(User, on_delete=models.CASCADE, related_name='chats_as_seller', limit_choices_to={'is_seller': True})

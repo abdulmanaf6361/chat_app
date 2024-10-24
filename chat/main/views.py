@@ -1,11 +1,13 @@
 # chat/views.py
-from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import UserRegisterForm
 from django.contrib.auth.decorators import login_required
-
-from django.shortcuts import render
+from django.http import HttpResponseForbidden,JsonResponse
+from main.models import Chat, Message, User
+from django.shortcuts import render, get_object_or_404, redirect
+from django.core.files.storage import default_storage
+from django.views.decorators.csrf import csrf_exempt
 
 def home_view(request):
     return render(request, 'chat/home.html')
@@ -51,7 +53,6 @@ def chat_list(request):
         'chats': chats,
     })
 
-from django.http import HttpResponseForbidden
 
 @login_required
 def create_chat(request):
@@ -84,21 +85,7 @@ def create_chat(request):
 
 
 
-# chat/views.py
-from django.shortcuts import render, get_object_or_404
-from .models import Chat, Message
-from django.contrib.auth.decorators import login_required
 
-# chat/views.py
-from django.shortcuts import render, get_object_or_404
-from .models import Chat, Message
-from django.contrib.auth.decorators import login_required
-
-from django.shortcuts import render, get_object_or_404, redirect
-from .models import Chat, Message
-from django.contrib.auth.decorators import login_required
-from django.http import Http404,HttpResponseBadRequest
-from main.models import User
 
 @login_required
 def chat_room(request, room_name):
@@ -128,11 +115,7 @@ def chat_room(request, room_name):
         'receiver_id':receiver.id
     })
 
-from django.http import JsonResponse
-from django.conf import settings
-from django.core.files.storage import default_storage
-from django.shortcuts import get_object_or_404
-from django.views.decorators.csrf import csrf_exempt
+
 
 @csrf_exempt  # Disable CSRF for simplicity (ensure proper security in production)
 def upload_file(request):
