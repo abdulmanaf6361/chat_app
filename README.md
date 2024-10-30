@@ -13,15 +13,15 @@ This project is a real-time chat application using Django, Django Channels, and 
 
 1. **Clone the Repository**
     ```bash
-    git clone https://github.com/your-repo/chat-app.git
-    cd chat-app
+    git clone https://github.com/abdulmanaf6361/chat_app.git
+    cd chat_app/chat
     ```
 
 2. **Set Up a Virtual Environment and Install Dependencies**  
    Create a virtual environment and activate it:
     ```bash
     python3 -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    .\venv\Scripts\Activate
     ```
    Install the required packages:
     ```bash
